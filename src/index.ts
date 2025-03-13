@@ -10,14 +10,17 @@ const michiCacheName = michiProcess.env.CACHE_NAME;
 
 const expectedCaches = [michiCacheName, USER_CACHE_NAME];
 
-const urlsToRequests = (urls: string[]): Request[] => urls.map((url) => new Request(url, { cache: "no-cache" }));
+const urlsToRequests = (urls: string[]): Request[] =>
+  urls.map((url) => new Request(url, { cache: "no-cache" }));
 
 const storeFilesIntoCache = async (cacheName: string, urls: string[]) => {
   const cache = await caches.open(cacheName);
   return await cache.addAll(urlsToRequests(urls));
 };
-const storeUserFilesIntoCache = async (urls: string[]) => await storeFilesIntoCache(USER_CACHE_NAME, urls);
-const storeBuildFilesIntoCache = async () => await storeFilesIntoCache(michiCacheName, buildFiles);
+const storeUserFilesIntoCache = async (urls: string[]) =>
+  await storeFilesIntoCache(USER_CACHE_NAME, urls);
+const storeBuildFilesIntoCache = async () =>
+  await storeFilesIntoCache(michiCacheName, buildFiles);
 
 const controlPageAndClean = async () => {
   const cacheNames = await caches.keys();
@@ -57,7 +60,7 @@ sw.addEventListener("message", (event) => {
       sw.skipWaiting();
       break;
     case MESSAGE_TYPES.ADD_TO_CACHE:
-      storeUserFilesIntoCache(event.data.urls)
+      storeUserFilesIntoCache(event.data.urls);
       break;
   }
 });
