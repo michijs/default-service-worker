@@ -1,0 +1,6 @@
+export const MESSAGE_TYPES = {
+  SKIP_WAITING: 'SKIP_WAITING',
+  ADD_TO_CACHE: 'ADD_TO_CACHE'
+}
+
+export const USER_CACHE_NAME = 'USER_CACHE'

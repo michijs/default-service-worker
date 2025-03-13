@@ -1,22 +1,23 @@
 import type { MichiProcessType } from "@michijs/dev-server";
+import { MESSAGE_TYPES, USER_CACHE_NAME } from "./constants";
 
 const sw = self as ServiceWorkerGlobalScope & typeof globalThis;
 
 declare const michiProcess: MichiProcessType;
 
 const buildFiles = michiProcess.env.BUILD_FILES;
-const cacheName = michiProcess.env.CACHE_NAME;
+const michiCacheName = michiProcess.env.CACHE_NAME;
 
-const expectedCaches = [cacheName];
+const expectedCaches = [michiCacheName, USER_CACHE_NAME];
 
-function urlsToRequests(urls: string[]): Request[] {
-  return urls.map((url) => new Request(url, { cache: "no-cache" }));
-}
+const urlsToRequests = (urls: string[]): Request[] => urls.map((url) => new Request(url, { cache: "no-cache" }));
 
-const storeBuildFilesIntoCache = async () => {
+const storeFilesIntoCache = async (cacheName: string, urls: string[]) => {
   const cache = await caches.open(cacheName);
-  return await cache.addAll(urlsToRequests(buildFiles));
+  return await cache.addAll(urlsToRequests(urls));
 };
+const storeUserFilesIntoCache = async (urls: string[]) => await storeFilesIntoCache(USER_CACHE_NAME, urls);
+const storeBuildFilesIntoCache = async () => await storeFilesIntoCache(michiCacheName, buildFiles);
 
 const controlPageAndClean = async () => {
   const cacheNames = await caches.keys();
@@ -51,5 +52,12 @@ sw.addEventListener("fetch", (e) => {
 });
 
 sw.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") sw.skipWaiting();
+  switch (event.data?.type) {
+    case MESSAGE_TYPES.SKIP_WAITING:
+      sw.skipWaiting();
+      break;
+    case MESSAGE_TYPES.ADD_TO_CACHE:
+      storeUserFilesIntoCache(event.data.urls)
+      break;
+  }
 });
