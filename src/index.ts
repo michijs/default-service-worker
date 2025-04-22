@@ -23,8 +23,11 @@ const storeBuildFilesIntoCache = async () =>
   await storeFilesIntoCache(michiCacheName, buildFiles);
 
 async function controlPageAndClean () {
-  return await Promise.allSettled(
-    expectedCaches.map((x) => caches.delete(x)),
+  const cacheNames = await caches.keys();
+  return await Promise.all(
+    cacheNames.map((x) =>
+      expectedCaches.includes(x) ? undefined : caches.delete(x),
+    ),
   );
 };
 
