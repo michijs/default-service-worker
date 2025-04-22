@@ -13,20 +13,18 @@ const expectedCaches = [michiCacheName, USER_CACHE_NAME];
 const urlsToRequests = (urls: string[]): Request[] =>
   urls.map((url) => new Request(url, { cache: "no-cache" }));
 
-async function storeFilesIntoCache(cacheName: string, urls: string[]){
+async function storeFilesIntoCache(cacheName: string, urls: string[]) {
   const cache = await caches.open(cacheName);
   return await cache.addAll(urlsToRequests(urls));
-};
+}
 const storeUserFilesIntoCache = async (urls: string[]) =>
   await storeFilesIntoCache(USER_CACHE_NAME, urls);
 const storeBuildFilesIntoCache = async () =>
   await storeFilesIntoCache(michiCacheName, buildFiles);
 
-async function controlPageAndClean () {
-  return await Promise.allSettled(
-    expectedCaches.map((x) => caches.delete(x)),
-  );
-};
+async function controlPageAndClean() {
+  return await Promise.allSettled(expectedCaches.map((x) => caches.delete(x)));
+}
 
 async function getFromCacheOrFetch(e: FetchEvent) {
   if (e.request.method !== "GET") {
@@ -34,10 +32,10 @@ async function getFromCacheOrFetch(e: FetchEvent) {
   }
   const response = await caches.match(e.request);
   return response || fetch(e.request);
-};
+}
 
 async function installPromise() {
-  await storeBuildFilesIntoCache()
+  await storeBuildFilesIntoCache();
   await sw.skipWaiting();
 }
 
@@ -47,17 +45,11 @@ async function activatePromise() {
 }
 
 // Cache, falling back to network strategy
-sw.addEventListener("install", (e) => 
-  e.waitUntil(installPromise())
-);
+sw.addEventListener("install", (e) => e.waitUntil(installPromise()));
 
-sw.addEventListener("activate", (e) => 
-  e.waitUntil(activatePromise())
-);
+sw.addEventListener("activate", (e) => e.waitUntil(activatePromise()));
 
-sw.addEventListener("fetch", (e) => 
-  e.respondWith(getFromCacheOrFetch(e))
-);
+sw.addEventListener("fetch", (e) => e.respondWith(getFromCacheOrFetch(e)));
 
 sw.addEventListener("message", (event) => {
   switch (event.data?.type) {
