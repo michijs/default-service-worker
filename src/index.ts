@@ -22,14 +22,14 @@ const storeUserFilesIntoCache = async (urls: string[]) =>
 const storeBuildFilesIntoCache = async () =>
   await storeFilesIntoCache(michiCacheName, buildFiles);
 
-async function controlPageAndClean () {
+async function controlPageAndClean() {
   const cacheNames = await caches.keys();
   return await Promise.allSettled(
     cacheNames.map((x) =>
       expectedCaches.includes(x) ? undefined : caches.delete(x),
     ),
   );
-};
+}
 
 async function getFromCacheOrFetch(e: FetchEvent) {
   if (e.request.method !== "GET") {
