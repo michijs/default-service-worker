@@ -22,7 +22,7 @@
     "link": "bunx concurrently bun:dist-w bun:bun-link"
   },
   "devDependencies": {
-    "@michijs/tsconfig": "0.0.4",
+    "@michijs/tsconfig": "0.0.5",
     "typescript": "5.9.2"
   },
   "packageManager": "bun@1.1.20",
